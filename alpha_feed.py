@@ -2,6 +2,10 @@ from alpha_vantage.timeseries import TimeSeries
 from config import (ALPHA_VANTAGE_API_KEY, MYSQL_DB_URI)
 from sqlalchemy import create_engine
 import pandas as pd
+import sys
+import time
+import threading
+lock = threading.Lock()
 
 
 class AlphaFeed(object):
@@ -68,13 +72,16 @@ class AlphaFeed(object):
 	    __conditions__=','.join(conditions))
 	self.engine.execute(query)
 
-    def upsert_data(self, job_type='rt'):
+    def get_data(self, job_type='rt'):
         '''Collects stock price data for symbols and UPSERTS to SQL table.
         
         Args:
             job_type (str): Specify type of data collection.
                 rt: Realtime data per minute
                 hist: Historical daily data where available
+
+        Returns:
+            DataFrame: Pandas DataFrame with data pulled from AlphaVantage
 
         Raises: ValueError if improper job_type
         '''
@@ -106,12 +113,76 @@ class AlphaFeed(object):
         df_all = pd.concat(dfs)
         # Rename columns to follow SQL field naming convention
         df_all= df_all.rename(columns=self.col_rename)
-        self.upsert_df(self.minute_table, df_all)
+        return df_all
+
+
+def rt_collection_deamon(symbols, period_dur=60):
+    '''Runs AlphaFeed's realtime get_data method every period duration.
+    Args:
+        symbols (tuple): Stock symbols to collect
+        period_dur (float): Time to wait between each request
+    '''
+    data_feed = AlphaFeed()
+    syms_str = ', '.join(symbols)
+    while True:
+        df = data_feed.get_data('rt')
+        with lock:
+            print '  Inserting new data for {}'.format(syms_str)
+            data_feed.upsert_df(data_feed.minute_table, df)
+        time.sleep(period_dur)
+
+
+def init_deamons(thread_tasks):
+    '''Starts rt_collection_deamon for each provided thread_tasks.
+
+    Args:
+        thread_tasks (tuple): Contains arguments for rt_collection_deamon
+            symbols (tuple): Stock symbols to collect
+            period_dur (float): Time to wait between each request
+    '''
+    print 'Initalizing data collection threads'
+    threads = []
+    msg_temp = '  {} scheduling {} collection every {} seconds'
+    for idx, thread_task in enumerate(thread_tasks):
+        syms, period = thread_task
+        daemon_name = 'daemon_' + str(idx+1)
+        print msg_temp.format(daemon_name, ', '.join(syms), period)
+        task = threading.Thread(
+            target=rt_collection_deamon,
+            name=daemon_name,
+            args=(thread_task)
+        )
+        task.setDaemon(True)
+        threads.append(task)
+    # Start all threads
+    print '##### Data Collection #####'
+    [task.start() for task in threads]
+
+    # Keep alive
+    while True:
+        pass
 
 
 if __name__ == '__main__':
-    data_feed = AlphaFeed()
-    data_feed.symbols = ('AABA', 'AAPL', 'AMD', 'AMZN', 'C', 'INTC', 'MSFT',
-                         'GOOGL', 'WFC', 'VZ')
-    data_feed.upsert_data('rt')
-    data_feed.upsert_data('hist')
+    if len(sys.argv) == 2:
+        # Prints head of found data for testing purposes
+        if sys.argv[1] == '-t':
+            data_feed = AlphaFeed()
+            data_feed.symbols = ('AABA', 'AAPL', 'AMD', 'AMZN', 'C', 'INTC',
+                                 'MSFT', 'GOOGL', 'WFC', 'VZ')
+            print '--- REALTIME ---'
+            print data_feed.get_data('rt').head()
+            print '--- Historical ---'
+            print data_feed.get_data('hist').head()
+        else:
+            print 'Unrecognized argument {}'.format(sys.argv[1])
+    else:
+        thread_tasks = (
+            (('AABA', 'AAPL'), 60),
+            (('AMD', 'AMZN'), 60),
+            (('C', 'INTC'), 60),
+            (('MSFT', 'GOOGL'), 60),
+            (('WFC', 'VZ'), 60)
+        )
+        thread_tasks = (thread_tasks)
+        init_deamons(thread_tasks)
