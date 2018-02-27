@@ -39,7 +39,32 @@ CREATE TABLE `stock_price_minute` (
 ### Python Libraries
 - `pip install -r requirements.txt`
 
-## Basic Usage
+### Running
+Collects AABA, AAPL, AMD, AMZN, C, INTC, MSFT, GOOGL, WFC, and VZ every minute
+
+- `python alpha_feed.py`
+
+```
+Initalizing data collection threads
+  daemon_1 scheduling AABA, AAPL collection every 60 seconds
+  daemon_2 scheduling AMD, AMZN collection every 60 seconds
+  daemon_3 scheduling C, INTC collection every 60 seconds
+  daemon_4 scheduling MSFT, GOOGL collection every 60 seconds
+  daemon_5 scheduling WFC, VZ collection every 60 seconds
+##### Data Collection #####
+  Inserting new data for MSFT, GOOGL
+  Inserting new data for C, INTC
+  Inserting new data for AMD, AMZN
+  Inserting new data for AABA, AAPL
+  Inserting new data for WFC, VZ
+```
+
+Collects AABA, AAPL, AMD, AMZN, C, INTC, MSFT, GOOGL, WFC, and VZ and prints to
+terminal head
+
+- `python alpha_feed.py -t`
+
+## AlphaFeed API
 Instantiate the AlphaVantage data feed object.
 
 `data_feed = AlphaFeed()`
@@ -56,8 +81,3 @@ Run "upsert_minute" method to collect the latest minute data to
   "minute_table".
 
 `data_feed.upsert_minute()`
-
-### Test Run
-Collects AAPL and AMD recent stock prices per minute.
-
-- `python alpha_feed.py`
