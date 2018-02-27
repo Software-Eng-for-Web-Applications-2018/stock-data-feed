@@ -18,6 +18,16 @@ CREATE TABLE `stock_price_minute` (
   `low` double DEFAULT NULL,
   PRIMARY KEY (`dateid`,`sym`)
 );
+CREATE TABLE `stock_price_day` (
+  `dateid` date NOT NULL,
+  `sym` varchar(5) NOT NULL,
+  `volume` double DEFAULT NULL,
+  `close` double DEFAULT NULL,
+  `high` double DEFAULT NULL,
+  `open` double DEFAULT NULL,
+  `low` double DEFAULT NULL,
+  PRIMARY KEY (`dateid`,`sym`)
+);
 ```
 
 ### Pip
