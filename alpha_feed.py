@@ -7,10 +7,13 @@ import pandas as pd
 class AlphaFeed(object):
 
     symbols = ('AAPL', 'AMD')
-    '''Symbols to collect data for.'''
+    '''Tuple of stock symbols to collect data for.'''
 
     minute_table = 'stock_price_minute'
     '''SQL table containing price per minute.'''
+
+    day_table = 'stock_price_day'
+    '''SQL table containing price per day.'''
 
     col_rename = {
         'date': 'dateid',
@@ -65,16 +68,37 @@ class AlphaFeed(object):
 	    __conditions__=','.join(conditions))
 	self.engine.execute(query)
 
-    def upsert_minute(self):
-        '''Collects minute data for symbols and UPSERTS to minute_table.'''
+    def upsert_data(self, job_type='rt'):
+        '''Collects stock price data for symbols and UPSERTS to SQL table.
+        
+        Args:
+            job_type (str): Specify type of data collection.
+                rt: Realtime data per minute
+                hist: Historical daily data where available
+
+        Raises: ValueError if improper job_type
+        '''
+        # Only set 1min interval for realtime data
+        if job_type == 'rt':
+            data_req = self.ts.get_intraday
+            ts_kwargs = {'interval': '1min', 'outputsize': 'full'}
+            upsert_table = self.minute_table
+        elif job_type == 'hist':
+            data_req = self.ts.get_daily
+            ts_kwargs = {'outputsize': 'full'}
+            upsert_table = self.day_table
+        else:
+            raise ValueError('Invalid job type {}'.format(job_type))
+
         dfs = []
+        # Collect data for each symbol from AlphaAdvantage
         for symbol in self.symbols:
-            # Collect data for symbol from AlphaAdvantage
-            df, _ = self.ts.get_intraday(
-                symbol=symbol,
-                interval='1min',
-                outputsize='full'
-            )
+            ts_kwargs['symbol'] = symbol
+            try:
+                df, _ = data_req(**ts_kwargs)
+            except ValueError as e:
+                print 'Invalid stock symbol {}: {}'.format(symbol, e.message)
+                continue
             # Set symbol field for table insert
             df['sym'] = symbol
             dfs.append(df)
@@ -87,5 +111,7 @@ class AlphaFeed(object):
 
 if __name__ == '__main__':
     data_feed = AlphaFeed()
-    data_feed.symbols = ('AAPL', 'AMD')
-    data_feed.upsert_minute()
+    data_feed.symbols = ('AABA', 'AAPL', 'AMD', 'AMZN', 'C', 'INTC', 'MSFT',
+                         'GOOGL', 'WFC', 'VZ')
+    data_feed.upsert_data('rt')
+    data_feed.upsert_data('hist')
