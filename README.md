@@ -75,7 +75,7 @@ Set the symbols you want to collect.
 
 If you want change the table you want to UPSERT data set the minute_table parameter.
 
-`data_feed.minute_table = 'test_table`
+`data_feed.minute_table = 'test_table'`
 
 Run "upsert_minute" method to collect the latest minute data to
   "minute_table".
