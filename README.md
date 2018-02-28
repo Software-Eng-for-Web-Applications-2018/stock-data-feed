@@ -49,8 +49,9 @@ CREATE TABLE `stock_price_day` (
 ### Python Libraries
 - `pip install -r requirements.txt`
 
-### Running
-Collects AABA, AAPL, AMD, AMZN, C, INTC, MSFT, GOOGL, WFC, and VZ every minute
+## Running
+Spawns 5 threads and collects AABA, AAPL, AMD, AMZN, C, INTC, MSFT, GOOGL, WFC,
+and VZ every minute.
 
 - `python alpha_feed.py`
 
@@ -70,24 +71,26 @@ Initalizing data collection threads
 ```
 
 Collects AABA, AAPL, AMD, AMZN, C, INTC, MSFT, GOOGL, WFC, and VZ and prints to
-terminal head
+terminal head of data for testing.
 
 - `python alpha_feed.py -t`
 
-## AlphaFeed API
-Instantiate the AlphaVantage data feed object.
+## AlphaFeed API Basics
+```
+# Instantiate the AlphaVantage data feed object.
+data_feed = AlphaFeed()
 
-`data_feed = AlphaFeed()`
+# Set the symbols you want to collect.
+data_feed.symbols = ('AAPL', 'AMD', 'DIS')
 
-Set the symbols you want to collect.
+# Request the latest data from AlphaVantage
+df_rt = data_feed.get_data('rt')  # For minute interval (realtime)
+df_hist = data_feed.get_data('hist')  # For day level (historical)
 
-`data_feed.symbols = ('AAPL', 'AMD', 'DIS')`
+# UPSERT resulting DataFrame to some SQL table
+data_feed.upsert_df('stock_price_minute', df_rt)
+data_feed.upsert_df('stock_price_day', df_hist)
+```
 
-If you want change the table you want to UPSERT data set the minute_table parameter.
-
-`data_feed.minute_table = 'test_table'`
-
-Run "upsert_minute" method to collect the latest minute data to
-  "minute_table".
-
-`data_feed.upsert_minute()`
+**Note:** UPSERT operation simply means INSERT data and UPDATE the entries
+wherever a duplicate key exists.
