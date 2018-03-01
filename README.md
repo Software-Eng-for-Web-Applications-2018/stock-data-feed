@@ -2,8 +2,7 @@
 Data pull from AlphaVantage to SQL db for minute intervals.
 
 ## Installation
-- Runs with Python2.7 but it won't be difficult to change to Python3 in the
-  future
+- Runs with Python3.5.2
 
 ### Database
 ```
@@ -33,12 +32,12 @@ CREATE TABLE `stock_price_day` (
 ### Pip
 
 #### Linux
-`apt-get install pip`
+`apt-get install pip3`
 
 #### Windows
-- I recommend using Anaconda for Python 2.7 or Cygwin
-- Anaconda will have pip already installed
-- Cygwin select "pip2.7" binary to install along with "python2.7"
+- I recommend using Anaconda for Python 3 or Cygwin
+- Anaconda will have pip3 already installed
+- Cygwin select "pip3" binary to install along with "python3.5"
 
 ## Configuration
 - Change the name of "example_config.py" to config.py"
@@ -47,13 +46,13 @@ CREATE TABLE `stock_price_day` (
   * <http://flask-sqlalchemy.pocoo.org/2.3/config/>
 
 ### Python Libraries
-- `pip install -r requirements.txt`
+- `pip3 install -r requirements.txt`
 
 ## Running
 Spawns 5 threads and collects AABA, AAPL, AMD, AMZN, C, INTC, MSFT, GOOGL, WFC,
 and VZ every minute.
 
-- `python alpha_feed.py`
+- `python3 alpha_feed.py`
 
 ```
 Initalizing data collection threads
@@ -73,7 +72,7 @@ Initalizing data collection threads
 Collects AABA, AAPL, AMD, AMZN, C, INTC, MSFT, GOOGL, WFC, and VZ and prints to
 terminal head of data for testing.
 
-- `python alpha_feed.py -t`
+- `python3 alpha_feed.py -t`
 
 ## AlphaFeed API Basics
 ```
