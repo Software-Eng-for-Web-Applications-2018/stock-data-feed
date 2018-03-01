@@ -46,31 +46,32 @@ class AlphaFeed(object):
             df (DataFrame): Pandas DataFrame containing new data entries.
         '''
         # Table columns
-	cols = list(df.columns)
-	entries = []
+        cols = list(df.columns)
+        entries = []
         # Values to insert
-	for idx, row in df.iterrows():
-	   # Remove the "u" flag for unicode entries
-	   row_entries_str = map(str, row.tolist())
-	   entries.append(str(tuple(row_entries_str)))
-        # Duplicate key update
-        conditions = ['{0}=VALUES({0})'.format(col) for col in cols]
-
-	# Alpha Advantage won't return malicous values
-	base_query = '''
-	INSERT INTO {__table__}
-	    ({__cols__})
-	VALUES
-	    {__entries__}
-	ON DUPLICATE KEY UPDATE
-        {__conditions__};
-	'''
+        for idx, row in df.iterrows():
+            # Remove the "u" flag for unicode entries
+            row_entries_str = map(str, row.tolist())
+            entries.append(str(tuple(row_entries_str)))
+            # Duplicate key update
+            conditions = ['{0}=VALUES({0})'.format(col) for col in cols]
+    
+        # Alpha Advantage won't return malicous values
+        base_query = '''
+        INSERT INTO {__table__}
+            ({__cols__})
+        VALUES
+            {__entries__}
+        ON DUPLICATE KEY UPDATE
+            {__conditions__};
+        '''
         query = base_query.format(
-	    __table__=table,
-	    __cols__=','.join(cols),
-	    __entries__=','.join(entries),
-	    __conditions__=','.join(conditions))
-	self.engine.execute(query)
+            __table__=table,
+            __cols__=','.join(cols),
+            __entries__=','.join(entries),
+            __conditions__=','.join(conditions)
+        )
+        self.engine.execute(query)
 
     def get_data(self, job_type='rt'):
         '''Collects stock price data for symbols and UPSERTS to SQL table.
@@ -104,7 +105,7 @@ class AlphaFeed(object):
             try:
                 df, _ = data_req(**ts_kwargs)
             except ValueError as e:
-                print 'Invalid stock symbol {}: {}'.format(symbol, e.message)
+                print('Invalid stock symbol {}: {}'.format(symbol, e))
                 continue
             # Set symbol field for table insert
             df['sym'] = symbol
@@ -127,7 +128,7 @@ def rt_collection_deamon(symbols, period_dur=60):
     while True:
         df = data_feed.get_data('rt')
         with lock:
-            print '  Inserting new data for {}'.format(syms_str)
+            print('  Inserting new data for {}'.format(syms_str))
             data_feed.upsert_df(data_feed.minute_table, df)
         time.sleep(period_dur)
 
@@ -140,13 +141,13 @@ def init_deamons(thread_tasks):
             symbols (tuple): Stock symbols to collect
             period_dur (float): Time to wait between each request
     '''
-    print 'Initalizing data collection threads'
+    print('Initalizing data collection threads')
     threads = []
     msg_temp = '  {} scheduling {} collection every {} seconds'
     for idx, thread_task in enumerate(thread_tasks):
         syms, period = thread_task
         daemon_name = 'daemon_' + str(idx+1)
-        print msg_temp.format(daemon_name, ', '.join(syms), period)
+        print(msg_temp.format(daemon_name, ', '.join(syms), period))
         task = threading.Thread(
             target=rt_collection_deamon,
             name=daemon_name,
@@ -155,7 +156,7 @@ def init_deamons(thread_tasks):
         task.setDaemon(True)
         threads.append(task)
     # Start all threads
-    print '##### Data Collection #####'
+    print('##### Data Collection #####')
     [task.start() for task in threads]
 
     # Keep alive
@@ -170,12 +171,12 @@ if __name__ == '__main__':
             data_feed = AlphaFeed()
             data_feed.symbols = ('AABA', 'AAPL', 'AMD', 'AMZN', 'C', 'INTC',
                                  'MSFT', 'GOOGL', 'WFC', 'VZ')
-            print '--- REALTIME ---'
-            print data_feed.get_data('rt').head()
-            print '--- Historical ---'
-            print data_feed.get_data('hist').head()
+            print('--- REALTIME ---')
+            print(data_feed.get_data('rt').head())
+            print('--- Historical ---')
+            print(data_feed.get_data('hist').head())
         else:
-            print 'Unrecognized argument {}'.format(sys.argv[1])
+            print('Unrecognized argument {}'.format(sys.argv[1]))
     else:
         thread_tasks = (
             (('AABA', 'AAPL'), 60),
