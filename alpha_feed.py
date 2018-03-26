@@ -183,7 +183,7 @@ if __name__ == '__main__':
             (('AMD', 'AMZN'), 60),
             (('C', 'INTC'), 60),
             (('MSFT', 'GOOGL'), 60),
-            (('WFC', 'VZ'), 60)
+            (('GOOG', 'VZ'), 60)
         )
         thread_tasks = (thread_tasks)
         init_deamons(thread_tasks)
