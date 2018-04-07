@@ -1,7 +1,20 @@
 alpha-vantage==1.9.0
 Flask==0.12.2
 Flask-SQLAlchemy==2.2
+Flask-Admin==1.5.1
+Flask-BabelEx==0.9.3
+Flask-Compress==1.4.0
+Flask-Login==0.4.1
+Flask-Mail==0.9.1
+Flask-Principal==0.4.0
+Flask-Security==3.0.0
+Flask-WTF==0.14.2
+dash==0.21.0
+dash-core-components==0.21.0
+dash-html-components==0.9.0
+dash-renderer==0.11.3
 itsdangerous==0.24
+Jinja2==2.10
 jsonpatch==1.10
 jsonpointer==1.9
 language-selector==0.1
@@ -16,3 +29,4 @@ six==1.11.0
 SQLAlchemy==1.1.11
 urllib3==1.22
 Werkzeug==0.14.1
+WTForms==2.1
