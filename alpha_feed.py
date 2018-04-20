@@ -124,6 +124,7 @@ def rt_collection_deamon(symbols, period_dur=60):
         period_dur (float): Time to wait between each request
     '''
     data_feed = AlphaFeed()
+    data_feed.symbols = symbols
     syms_str = ', '.join(symbols)
     while True:
         df = data_feed.get_data('rt')
