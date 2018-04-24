@@ -1,3 +1,7 @@
+# written by: Kevin Pielacki
+# tested by: Kevin Pielacki
+
+
 # Example config.py file containing sensitive information
 
 # AlphaVantage API Token

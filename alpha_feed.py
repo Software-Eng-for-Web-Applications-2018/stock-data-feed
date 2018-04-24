@@ -1,3 +1,7 @@
+# written by: Kevin Pielacki
+# tested by: Kevin Pielacki
+
+
 from alpha_vantage.timeseries import TimeSeries
 from config import (ALPHA_VANTAGE_API_KEY, MYSQL_DB_URI)
 from sqlalchemy import create_engine

@@ -1,3 +1,7 @@
+# written by: Kevin Pielacki
+# tested by: Kevin Pielacki
+
+
 import sys
 import time
 import threading
