@@ -52,7 +52,7 @@ CREATE TABLE `stock_price_day` (
 Spawns 5 threads and collects AABA, AAPL, AMD, AMZN, C, INTC, MSFT, GOOGL, WFC,
 and VZ every minute.
 
-- `python3 alpha_feed.py`
+- `python3 run_feed.py`
 
 ```
 Initalizing data collection threads
@@ -72,7 +72,8 @@ Initalizing data collection threads
 Collects AABA, AAPL, AMD, AMZN, C, INTC, MSFT, GOOGL, WFC, and VZ and prints to
 terminal head of data for testing.
 
-- `python3 alpha_feed.py -t`
+- `python3 run_feed.py -H`
+- `python3 run_feed.py -t`
 
 ## AlphaFeed API Basics
 ```
